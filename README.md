@@ -1,1 +1,1 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/blaw065dh0oey76u?svg=true)](https://ci.appveyor.com/project/amaslov-QA/DZAVTO-DEBETCARD.git)
+# CheckCard [![Build status](https://ci.appveyor.com/api/projects/status/blaw065dh0oey76u?svg=true)](https://ci.appveyor.com/project/amaslov-QA/DZAVTO-DEBETCARD.git)
