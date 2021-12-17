@@ -29,6 +29,7 @@ class CardTest {
         options.addArguments("--no-sandbox");
         options.addArguments("--headless");
         driver = new ChromeDriver(options);
+        driver.get("http://localhost:9999/");
     }
 
     @AfterEach
@@ -39,40 +40,46 @@ class CardTest {
 
     @Test
     void shouldSendSuccessfulForm() {
-        driver.get("http://localhost:9999/");
         driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
         driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
-        String text = driver.findElement(By.cssSelector(".paragraph_theme_alfa-on-white")).getText().trim();
+        String text = String.valueOf(driver.findElement(By.cssSelector("[data-test-id='order-success']")).getText().trim());
+        String expected = "Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendSuccessfulFormNameHyphen() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Ромманов Сан-Жак");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = String.valueOf(driver.findElement(By.cssSelector("[data-test-id='order-success']")).getText().trim());
         String expected = "Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.";
         assertEquals(expected, text);
     }
     @Test
     void shouldSendFormNotName() {
-        driver.get("http://localhost:9999");
         driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
-        String text = driver.findElement(By.cssSelector(".input_invalid [class='input__sub']")).getText().trim();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid [class='input__sub']")).getText().trim();
         String expected = "Поле обязательно для заполнения";
         assertEquals(expected, text);
     }
 
     @Test
     void shouldSendFormNotPhone() {
-        driver.get("http://localhost:9999");
         driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
-        String text = driver.findElement(By.cssSelector(".input_invalid [class='input__sub']")).getText().trim();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
         String expected = "Поле обязательно для заполнения";
         assertEquals(expected, text);
     }
 
     @Test
     void shouldSendFormNotAll()  {
-        driver.get("http://localhost:9999");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
         String text = driver.findElement(By.cssSelector(".input_invalid [class='input__sub']")).getText().trim();
@@ -82,24 +89,72 @@ class CardTest {
 
     @Test
     void shouldSendFormOnEnglishName()  {
-        driver.get("http://localhost:9999");
         driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Dalay Lama");
         driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
-        String text = driver.findElement(By.cssSelector(".input_invalid [class='input__sub']")).getText().trim();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid [class='input__sub']")).getText().trim();
         String expected = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
         assertEquals(expected, text);
     }
 
     @Test
-    void shouldSendFormWithPartPhone() throws InterruptedException {
-        driver.get("http://localhost:9999");
+    void shouldSendFormWithPartPhone()  {
         driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
         driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+7911254");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
-        String text = driver.findElement(By.cssSelector(".input_invalid [class='input__sub']")).getText().trim();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendFormWithPhoneOneElement()  {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendFormWithPartPhoneTwelveNumber()  {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+791125435223");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendFormWithPartPhoneInvalid()  {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("79112543552+");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendFormOnNameInvalid()  {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Ромманов Сан+Жак");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid [class='input__sub']")).getText().trim();
+        String expected = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
+        assertEquals(expected, text);
+    }
+    @Test
+    void shouldSendFormWithPartPhoneInvalidTwo()  {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Каролина Торгариан");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+7 911 254 35 52");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid [class='input__sub']")).getText().trim();
         String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
         assertEquals(expected, text);
     }
