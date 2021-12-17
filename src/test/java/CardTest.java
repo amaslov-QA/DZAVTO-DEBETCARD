@@ -158,4 +158,13 @@ class CardTest {
         String expected = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
         assertEquals(expected, text);
     }
+    @Test
+    void shouldSendSuccessfulFormNotButton() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Ромманов Сан-Жак");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79112546585");
+        driver.findElement(By.cssSelector("button")).click();
+        String attribute = driver.findElement(By.cssSelector("[data-test-id='agreement'].input_invalid .checkbox__text")).getText().trim();
+        String expected = "Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй";
+        assertEquals(expected, attribute);
+    }
 }
